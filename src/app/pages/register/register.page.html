@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="mitema">
+    <ion-title>Registro de usuario</ion-title>
+    <ion-button slot="end" fill="clear" routerLink="/login">
+      <ion-icon name="chevron-back" class="icono"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+
+
+    <div class="ion-padding">
+      <form>
+        <ion-item>
+          <ion-input [(ngModel)]="newUser.rut" name="rut" label="RUT" maxlength=11 [pattern]="rutP"
+            [ngClass]="{'invalid':!isRutValid()}" labelPlacement="floating" placeholder="ej:20558045-K"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input [(ngModel)]="newUser.name" name="name" label="Nombres" labelPlacement="floating"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input [(ngModel)]="newUser.lastname" name="lastname" label="Apellidos"
+            labelPlacement="floating"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input [(ngModel)]="newUser.email" name="email" label="Correo electrónico" labelPlacement="floating"
+            placeholder="ej:pe.rodriguezs@duocuc.cl"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-label position="stacked">Celular</ion-label>
+          <div style="display: flex; align-items: center;">
+            <ion-text style="margin-right: 8px;">+56</ion-text>
+            <!--sacar flechas del numeber-->
+            <ion-input [(ngModel)]="newUser.cel" name="cel" type="text" maxlength="9" placeholder="9 8765 4321"
+              (keydown)="blockLettersAndAllowDelete($event)"></ion-input>
+          </div>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input [(ngModel)]="newUser.pass" name="password" label="Contraseña" labelPlacement="floating"
+            type="password" placeholder="Ingresa una contraseña"></ion-input>
+        </ion-item>
+        <br>
+        <ion-item>
+          <ion-input [(ngModel)]="confirmPass" name="confirmPassword" label="Confirmar Contraseña"
+            labelPlacement="floating" type="password" placeholder="Confirma tu contraseña"></ion-input>
+        </ion-item>
+        <br>
+
+        <ion-button color="mitema" class="btn1" expand="full" (click)="register()">Registrar</ion-button>
+      </form>
+    </div>
+  </ion-card>
+</ion-content>
