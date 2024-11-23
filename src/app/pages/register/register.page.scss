@@ -1,0 +1,48 @@
+ion-toolbar {
+    background-color: var(--ion-color-mitema);
+}
+
+placeholder::part(native)::-webkit-input-placeholder {
+    color: rgba(0, 0, 0, 0.3);
+    /* Ajusta la transparencia del placeholder */
+}
+
+placeholder::part(native):-ms-input-placeholder {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+placeholder::part(native)::placeholder {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+ion-input label {
+    color: black
+}
+
+.btn1 {
+    background-color: var(--ion-color-mitema);
+    color: var(--ion-color-mitema2);
+    font-weight: 600;
+}
+
+ion-button {
+    border-radius: 15px;
+    //Anim
+    --background-activated: var(--ion-color-mitema2-tint);
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+    &:active {
+        transform: scale(0.95);
+        background-color: var(--ion-color-primary-shade);
+    }
+}
+
+.icono {
+    font-size: 150%;
+    color: white;
+}
+ion-input[type="number"]::-webkit-outer-spin-button,
+ion-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
