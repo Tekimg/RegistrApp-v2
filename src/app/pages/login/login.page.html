@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar class="hdr1" color="mitema">
+    <ion-title><h1 class="header">
+      <span class="duoc" style="color: white;">Duoc</span>
+      <span class="duoc" style="color: #FFB800;">UC</span>
+      <img src="assets/icon/UC.png" alt="logo UC" class="logo"/> 
+      </h1>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="containercard">
+    <div style="margin-top: 15%;">
+      <div style="margin: 5%;" class="ion-padding">
+        <form><!--(submit)="login()">-->
+          <ion-item>
+            <ion-input [(ngModel)]="credenciales.email" name="email" 
+            label="Correo" labelPlacement="floating"></ion-input>
+          </ion-item>
+          <br>
+          <ion-item>
+            <ion-input [(ngModel)]="credenciales.pass" name="password" 
+            type="password" label="Contraseña" labelPlacement="floating"></ion-input>
+          </ion-item>
+          <br> <br>
+          <ion-button color="mitema" class="btn3" expand="full" (click)="login()">Ingresar</ion-button>
+          <ion-button color="mitema2" class="btn1" expand="full" [routerLink]="['/register']">Registrarse</ion-button>
+          <ion-button color="mitema" class="btn2" expand="full" fill="clear" [routerLink]="['/recover-pass']">Recuperar Contraseña</ion-button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</ion-content>

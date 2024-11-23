@@ -1,0 +1,32 @@
+<ion-header >
+  <ion-toolbar class="hdr1" color="mitema">
+    <ion-title  >
+      <h3 class="wel-text">Bienvenido, <span style="color: #FFD100;">{{ name }}</span></h3>
+    </ion-title>
+    <ion-button slot="end" fill="clear" color="light" [routerLink]="['/userprofile']">
+      <ion-icon name="person" slot="start"></ion-icon>
+      Perfil
+    </ion-button>
+    <ion-button slot="end" fill="clear"  (click)="logout()"> 
+      <ion-icon class="icono" name="log-out" ></ion-icon>  
+    </ion-button> 
+  </ion-toolbar>
+</ion-header>
+<br>
+<ion-content [fullscreen]="true">
+  <div id="container">
+    <ion-card class="container">
+      <ion-tab-button class="cam" routerLink="/escaneo-qr">
+        <ion-icon name="camera"></ion-icon>
+        <ion-label>Ingresar asistencia</ion-label>
+      </ion-tab-button>
+    </ion-card>
+  </div>
+  <div class="container2">
+    <ion-button color="mitema2" class="btn" [routerLink]="['/users']">Alumnos presentes</ion-button>
+
+  </div>
+
+
+</ion-content>
+<!--(click)="abrirCam()"-->
