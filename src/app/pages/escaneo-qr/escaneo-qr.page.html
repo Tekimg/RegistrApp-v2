@@ -14,21 +14,21 @@
         <video #video width="100%" height="auto"></video>
       </div>
 
+      <!-- Resultados del escaneo -->
       <div  *ngIf="scannedData">
         <ion-card class="scannedData">
           <ion-card-header>
             <ion-card-title>Resultado del escaneo:</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            {{ scannedData }}
+            <p>Asignatura: {{ asignatura }}</p>
+            <p>Sección: {{ seccion }}</p>
+            <p>Sala: {{ sala }}</p>
+            <p>Fecha: {{ fecha }}</p>
           </ion-card-content>
         </ion-card>
       </div>
 
     <ion-button color="mitema2" routerLink="/home" >Volver al Inicio</ion-button>
-
-    
-
-
   </div>
 </ion-content>
