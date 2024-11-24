@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { FirebaseService, } from 'src/app/services/firebase.service';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-import { AlertController } from '@ionic/angular';
 
 
 @Component({
@@ -69,7 +68,9 @@ export class UserprofilePage implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
-  }
+
+  
+}
 
   // Cargar usuarios 
   loadUsers() {
