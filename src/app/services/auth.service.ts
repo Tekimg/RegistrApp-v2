@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, deleteUser } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { User } from '../models/user';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,10 @@ export class AuthService {
     private auth: Auth,
     private router: Router
 
-  ) { }
+  ) { 
+
+    
+  }
 
   async loginAuth(email: string, pass: string) {
     return signInWithEmailAndPassword(this.auth, email, pass)
@@ -52,7 +55,4 @@ export class AuthService {
   }
  
 
-  async deleteUserAuth(){
-    
-  }
 }
