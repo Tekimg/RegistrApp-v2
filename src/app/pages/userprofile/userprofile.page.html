@@ -48,7 +48,14 @@
       <div class="btn-container">
         <ion-button *ngIf="!isEditing" (click)="enableEdit()" color="mitema" class="btn1" expand="block">Editar usuario</ion-button>
         <ion-button *ngIf="isEditing" (click)="confirmEdit()" color="success" expand="block">Confirmar Cambios</ion-button>
-        <ion-button *ngIf="!isEditing" color="mitema2" class="btn3" expand="block" (click)="eliminarUser()">Eliminar</ion-button>
+        <ion-button *ngIf="!isEditing" id="present-alert" color="danger" class="btn3" expand="block" (click)="showDeleteAlert()">Eliminar</ion-button>
+        <!-- <ion-alert
+          trigger="present-alert"
+          header="Confirmar Eliminación"
+          subHeader="Esta acción no se puede deshacer."
+          message="¿Estás seguro que deseas eliminar este usuario?"
+          [buttons]="alertButtons"
+        ></ion-alert> -->
       </div>
     </ion-card>
   </div>
