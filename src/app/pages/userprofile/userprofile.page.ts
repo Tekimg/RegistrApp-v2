@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { FirebaseService, } from 'src/app/services/firebase.service';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -16,15 +16,61 @@ export class UserprofilePage implements OnInit {
   currentUser: User | null = null;  
   isEditing: boolean = false;
 
+  // Alerta de eliminación de usuario
+  alertButtons = [
+    {
+      text: 'Cancelar',
+      role: 'cancel',
+    },
+    {
+      text: 'Eliminar',
+      role: 'confirm',
+      handler: () => {
+        this.eliminarUser();
+      },
+    },
+  ];
+
   constructor(
     private firebaseService: FirebaseService,
     private toast:ToastController,
     private router:Router,
-    private authService:AuthService) {}
+    private authService:AuthService,
+    private alertController: AlertController) {}
+
+  
+  // Mostrar alerta de confirmación para eliminar usuario
+  async showDeleteAlert() {
+    const alert = await this.alertController.create({
+      header: 'Confirmar eliminación',
+      message: '¿Estás seguro de que deseas eliminar este usuario?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            console.log('Eliminación cancelada');
+          },
+        },
+        {
+          text: 'Eliminar',
+          role: 'confirm',
+          handler: () => {
+            // Llama a eliminarUser solo al confirmar
+            this.eliminarUser();
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
 
   ngOnInit() {
     this.loadUsers();
-  }
+
+  
+}
 
   // Cargar usuarios 
   loadUsers() {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
   Firestore, collection, collectionData, doc, setDoc, updateDoc, getDoc, DocumentReference, DocumentData,
-  query, where, getDocs, deleteDoc
+  query, where, getDocs, deleteDoc, addDoc
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -67,8 +67,48 @@ export class FirebaseService {
     }
   }
 
-
+  async obtenerUsuarioAutenticado() {
+    const user = this.auth.currentUser; // Obtener el usuario autenticado de Firebase Auth
+    console.log('user', user);
+    
+    if (!user) {
+      console.error('No hay un usuario autenticado.');
+      return null;
+    }
   
+    const email = user.email;
+    if (!email) {
+      console.error('El usuario autenticado no tiene un email.');
+      return null;
+    }
+  
+    // Buscar el documento del usuario en la colección 'Users' usando su email
+    const usuario = await this.getDocumentByField('Users', 'email', email);
+    if (!usuario) {
+      console.error('No se encontró un usuario con este email en la colección.');
+      return null;
+    }
+  
+    console.log('Usuario autenticado encontrado:', usuario);
+    return usuario; // Devuelve toda la información del usuario
+  }
+  
+  
+ // Guardar asistencia
+  async guardarAsistencia(data: any) {
+    const asistenciasCollection = collection(this.firestore, 'Asistencias');
+    return await addDoc(asistenciasCollection, data);
+  }
+
+  // Obtener asistencias de un usuario específico
+  async obtenerAsistenciasPorUsuario(userId: string) {
+    const asistenciasCollection = collection(this.firestore, 'Asistencias');
+    const q = query(asistenciasCollection, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map(doc => doc.data());
+  }
+
 }
 
 
