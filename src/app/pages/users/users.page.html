@@ -16,18 +16,18 @@
       <table style="width: 100%; border-collapse: collapse;">
         <thead>
           <tr>
-            <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Asignatura</th>
-            <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Sección</th>
-            <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Sala</th>
-            <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Fecha</th>
+            <th>Asignatura</th>
+            <th>Sección</th>
+            <th>Sala</th>
+            <th>Fecha</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let asistencia of asistencias">
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ asistencia.asignatura }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ asistencia.seccion }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ asistencia.sala }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ asistencia.fecha }}</td>
+            <td>{{ asistencia.asignatura }}</td>
+            <td>{{ asistencia.seccion }}</td>
+            <td>{{ asistencia.sala }}</td>
+            <td>{{ asistencia.fecha }}</td>
           </tr>
         </tbody>
       </table>
