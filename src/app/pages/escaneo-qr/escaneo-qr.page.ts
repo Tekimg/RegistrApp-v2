@@ -4,13 +4,15 @@ import { AlertController } from '@ionic/angular';
 import { LoadingService } from 'src/app/loading.service';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { ToastController } from '@ionic/angular';
-
+import { Geolocation } from '@capacitor/geolocation';
+import { LocationService } from 'src/app/location-service.service';
 @Component({
   selector: 'app-escaneo-qr',
   templateUrl: './escaneo-qr.page.html',
   styleUrls: ['./escaneo-qr.page.scss'],
 })
 export class EscaneoQrPage implements OnDestroy, AfterViewInit {
+  currentSede: string | null = null;
   @ViewChild('video', { static: false }) video!: ElementRef<HTMLVideoElement>;
 
   // Variables del qr
@@ -28,8 +30,10 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     private alertController: AlertController,
     private loadingService: LoadingService,
     private cdr: ChangeDetectorRef,
-    private firebaseService:FirebaseService,
-    private toast: ToastController
+    private firebaseService: FirebaseService,
+    private toast: ToastController,
+    private geolocation: Geolocation,
+    private locationService: LocationService,
   ) { // Se agregó el loadingService
     this.codeReader = new BrowserMultiFormatReader();
   }
@@ -224,4 +228,33 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     });
     await alert.present();
   }
+  
+
+  async checkLocation() {
+    try {
+      // Obtén la posición del usuario
+      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+  
+      // Extrae latitud y longitud
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+  
+      console.log(`Latitud: ${lat}, Longitud: ${lng}`); // Verifica las coordenadas
+  
+      // Llama al servicio para verificar si está dentro de una sede
+      this.currentSede = await this.locationService.isInsideSede(lat, lng);
+  
+      // Mensaje dependiendo del resultado
+      if (this.currentSede) {
+        console.log(`Estás dentro de la sede: ${this.currentSede}`);
+      } else {
+        console.log('No estás dentro de ninguna sede DUOC UC.');
+      }
+    } catch (error) {
+      console.error('Error obteniendo ubicación:', error);
+    }
+  }
+  
+  
 }
+

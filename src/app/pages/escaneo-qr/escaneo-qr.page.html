@@ -4,6 +4,23 @@
   </ion-toolbar>
 </ion-header>
 
+
+<ion-content class="ion-padding">
+  <ion-button expand="block" (click)="checkLocation()">Verificar Ubicación</ion-button>
+
+  <div *ngIf="currentSede">
+    <h2>Estás en: {{ currentSede }}</h2>
+  </div>
+  <div *ngIf="currentSede === null">
+    <h2>No estás dentro de ninguna sede DUOC UC.</h2>
+  </div>
+</ion-content>
+
+
+<ion-button color="mitema2" class="btn" routerLink="/users">Mis asistencias</ion-button>
+<ion-button color="mitema2" routerLink="/home" >Volver al Inicio</ion-button>
+
+
 <ion-content>
 
   <div class="scanner-container">
@@ -28,9 +45,6 @@
           </ion-card-content>
         </ion-card>
       </div>
-
-      <ion-button color="mitema2" class="btn" routerLink="/users">Mis asistencias</ion-button>
-      <ion-button color="mitema2" routerLink="/home" >Volver al Inicio</ion-button>
 
   </div>
 </ion-content>
