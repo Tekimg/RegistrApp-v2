@@ -4,6 +4,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { FirebaseService } from 'src/app/services/firebase.service';
 
+import { SantoralService } from 'src/app/services/santoral.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -14,16 +16,59 @@ export class HomePage implements OnInit {
   public currentUser: User | null = null; 
   users: any[] = []; 
 
+  // Santoral
+  santos: any[] = []; // Variable para almacenar los datos de la API
+
   constructor(
     private firebaseService: FirebaseService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private santoralService: SantoralService
   ) {const navigation = this.router.getCurrentNavigation();}
 
   ngOnInit() {
    
     // Cargar los usuarios desde Firebase
     this.loadUsers();
+
+    // Cargar los santos del día
+    this.obtenerSantos();
+
+  }
+
+  // Método para obtener los santos del día
+  obtenerSantos() {
+    this.santoralService.getSantosDelDia().subscribe(
+      (response) => {
+        console.log('Santos del día:', response);
+
+        // Extrae los datos por meses y días
+        const allSantos = response.data;
+
+        // Fecha actual
+        const now = new Date();
+        const mesActual = now.toLocaleString('es-ES', { month: 'long' }).toLowerCase(); // Ej: 'noviembre'
+        const diaActual = now.getDate(); // Día del mes (1-31)
+
+        // Accede al mes y día correspondiente
+        const santosHoy = allSantos[mesActual]?.[diaActual - 1]; // Restamos 1 porque los arrays son 0-indexados
+
+        // Si es un string, lo convertimos en un array para que *ngFor funcione
+        if (typeof santosHoy === 'string') {
+          this.santos = [santosHoy];
+        } else if (Array.isArray(santosHoy)) {
+          this.santos = santosHoy;
+        } else {
+          this.santos = []; // Si no hay santos, asignamos un array vacío
+        }
+
+        console.log('Santos procesados (hoy):', this.santos);
+        console.log('Santos para mostrar:', this.santos);
+      },
+      (error) => {
+        console.error('Error al obtener los santos del día:', error);
+      }
+    );
   }
 
   // Función para cargar los usuarios desde Firebase

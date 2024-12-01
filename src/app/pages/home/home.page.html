@@ -12,7 +12,25 @@
     </ion-button> 
   </ion-toolbar>
 </ion-header>
-<br>
+
+<!-- Sección del Santoral -->
+<section class="santoral-section">
+  <h2>Santoral del Día</h2>
+  <div *ngIf="santos && santos.length > 0; else noData">
+    <ion-list>
+      <ion-item *ngFor="let santo of santos">
+        <ion-label>
+          <h3>🕊️ Santoral del Día: {{ santo }}</h3>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+  <ng-template #noData>
+    <p>No hay santos disponibles para mostrar.</p>
+  </ng-template>
+</section>
+
+<!-- Asistencia -->
 <ion-content [fullscreen]="true">
   <div id="container">
     <ion-card class="container">
@@ -24,9 +42,6 @@
   </div>
   <div class="container2">
     <ion-button color="mitema2" class="btn" [routerLink]="['/users']">Alumnos presentes</ion-button>
-
   </div>
-
-
 </ion-content>
 <!--(click)="abrirCam()"-->
