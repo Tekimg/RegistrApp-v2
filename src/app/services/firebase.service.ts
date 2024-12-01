@@ -5,7 +5,8 @@ import {
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { Auth, deleteUser } from '@angular/fire/auth';
+import { Auth, deleteUser, sendPasswordResetEmail } from '@angular/fire/auth';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ import { Auth, deleteUser } from '@angular/fire/auth';
 export class FirebaseService {
 
   constructor(private firestore: Firestore,
-    private auth: Auth
+    private auth: Auth,
+    private toastController: ToastController
 
   ) { }
 
@@ -109,6 +111,43 @@ export class FirebaseService {
     return querySnapshot.docs.map(doc => doc.data());
   }
 
+
+async findUserByEmail(email: string): Promise<boolean> {
+  try {
+    const usersCollection = collection(this.firestore, 'Users');
+    const q = query(usersCollection, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+
+    // Si no encuentra ningún documento, retorna false
+    if (querySnapshot.empty) {
+      return false;
+    }
+
+    // Si encuentra el documento, retorna true
+    return true;
+  } catch (error) {
+    console.error("Error buscando el correo en la colección Users:", error);
+    return false;
+  }
 }
 
-
+// Función para enviar el correo de restablecimiento de contraseña
+async sendPasswordReset(email: string): Promise<void> {
+  try {
+    await sendPasswordResetEmail(this.auth, email);
+    this.showToast('Correo enviado para restablecer la contraseña', 'success');
+  } catch (error) {
+    console.error("Error al enviar el correo de restablecimiento:", error);
+    this.showToast('Hubo un error al enviar el correo, intenta nuevamente', 'danger');
+  }
+}
+async showToast(message: string, color: string): Promise<void> {
+  const toast = await this.toastController.create({
+    message: message,
+    duration: 2500,
+    position: 'bottom',
+    color: color
+  });
+  toast.present();
+}
+}
