@@ -17,6 +17,9 @@ import { environment } from 'src/environments/environment';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 
+import { HttpClientModule } from '@angular/common/http';
+
+
 @NgModule({
   declarations: [AppComponent, LoadingComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, CommonModule, AngularFireModule.initializeApp(environment.firebase),AngularFireAuthModule],
