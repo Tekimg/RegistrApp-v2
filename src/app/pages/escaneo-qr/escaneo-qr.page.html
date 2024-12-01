@@ -1,36 +1,62 @@
 <ion-header>
   <ion-toolbar class="hdr1" color="mitema">
-    <ion-title><h3>Agregar asistencia</h3></ion-title>
+    <ion-title>
+      <h3>Agregar asistencia</h3>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
+
 
 <ion-content>
 
   <div class="scanner-container">
     <h2>Escanea el QR</h2>
 
-      <!-- Camara -->
-      <div *ngIf="scanningSpace">
-        <video #video width="100%" height="auto"></video>
+
+    <br>
+    <!-- Camara -->
+    <div *ngIf="scanningSpace">
+      <video #video width="100%" height="auto"></video>
+    </div>
+
+    <!-- Resultados del escaneo -->
+    <div *ngIf="scannedData">
+      <ion-card *ngIf="currentSede">
+        <ion-card-header>
+          <ion-card-title>Resultado del escaneo:</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Asignatura: {{ asignatura }}</p>
+          <p>Sección: {{ seccion }}</p>
+          <p>Sala: {{ sala }}</p>
+          <p>Fecha: {{ fecha }}</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card *ngIf="!currentSede">
+        <ion-card-content>
+          <br>
+          <h3>No se registró la información del escaneo.</h3>
+          <br>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+
+    <div *ngIf="scannedCompleted">
+      <br>
+      <div *ngIf="currentSede">
+        <h2>Estás en: {{ currentSede }}</h2>
       </div>
-
-      <!-- Resultados del escaneo -->
-      <div  *ngIf="scannedData">
-        <ion-card class="scannedData">
-          <ion-card-header>
-            <ion-card-title>Resultado del escaneo:</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <p>Asignatura: {{ asignatura }}</p>
-            <p>Sección: {{ seccion }}</p>
-            <p>Sala: {{ sala }}</p>
-            <p>Fecha: {{ fecha }}</p>
-          </ion-card-content>
-        </ion-card>
+      <div *ngIf="currentSede === null">
+        <h2>No estás dentro de ninguna sede DUOC UC.</h2>
       </div>
+    </div>
 
-      <ion-button color="mitema2" class="btn" routerLink="/users">Mis asistencias</ion-button>
-      <ion-button color="mitema2" routerLink="/home" >Volver al Inicio</ion-button>
-
+    <br>
+    <div class="btn-container">
+      <ion-button color="mitema2" expand="full" class="btn" routerLink="/users">Mis asistencias</ion-button>
+      <ion-button color="mitema2" expand="full" class="btn" routerLink="/home">Volver al Inicio</ion-button>
+    </div>
   </div>
 </ion-content>
