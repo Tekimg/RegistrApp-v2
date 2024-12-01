@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import {
   Firestore, collection, collectionData, doc, setDoc, updateDoc, getDoc, DocumentReference, DocumentData,
-  query, where, getDocs, deleteDoc
+  query, where, getDocs, deleteDoc, addDoc
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { Auth, deleteUser } from '@angular/fire/auth';
+import { Auth, deleteUser, sendPasswordResetEmail } from '@angular/fire/auth';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ import { Auth, deleteUser } from '@angular/fire/auth';
 export class FirebaseService {
 
   constructor(private firestore: Firestore,
-    private auth: Auth
+    private auth: Auth,
+    private toastController: ToastController
 
   ) { }
 
@@ -67,8 +69,85 @@ export class FirebaseService {
     }
   }
 
-
+  async obtenerUsuarioAutenticado() {
+    const user = this.auth.currentUser; // Obtener el usuario autenticado de Firebase Auth
+    console.log('user', user);
+    
+    if (!user) {
+      console.error('No hay un usuario autenticado.');
+      return null;
+    }
   
+    const email = user.email;
+    if (!email) {
+      console.error('El usuario autenticado no tiene un email.');
+      return null;
+    }
+  
+    // Buscar el documento del usuario en la colección 'Users' usando su email
+    const usuario = await this.getDocumentByField('Users', 'email', email);
+    if (!usuario) {
+      console.error('No se encontró un usuario con este email en la colección.');
+      return null;
+    }
+  
+    console.log('Usuario autenticado encontrado:', usuario);
+    return usuario; // Devuelve toda la información del usuario
+  }
+  
+  
+ // Guardar asistencia
+  async guardarAsistencia(data: any) {
+    const asistenciasCollection = collection(this.firestore, 'Asistencias');
+    return await addDoc(asistenciasCollection, data);
+  }
+
+  // Obtener asistencias de un usuario específico
+  async obtenerAsistenciasPorUsuario(userId: string) {
+    const asistenciasCollection = collection(this.firestore, 'Asistencias');
+    const q = query(asistenciasCollection, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map(doc => doc.data());
+  }
+
+
+async findUserByEmail(email: string): Promise<boolean> {
+  try {
+    const usersCollection = collection(this.firestore, 'Users');
+    const q = query(usersCollection, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+
+    // Si no encuentra ningún documento, retorna false
+    if (querySnapshot.empty) {
+      return false;
+    }
+
+    // Si encuentra el documento, retorna true
+    return true;
+  } catch (error) {
+    console.error("Error buscando el correo en la colección Users:", error);
+    return false;
+  }
 }
 
-
+// Función para enviar el correo de restablecimiento de contraseña
+async sendPasswordReset(email: string): Promise<void> {
+  try {
+    await sendPasswordResetEmail(this.auth, email);
+    this.showToast('Correo enviado para restablecer la contraseña', 'success');
+  } catch (error) {
+    console.error("Error al enviar el correo de restablecimiento:", error);
+    this.showToast('Hubo un error al enviar el correo, intenta nuevamente', 'danger');
+  }
+}
+async showToast(message: string, color: string): Promise<void> {
+  const toast = await this.toastController.create({
+    message: message,
+    duration: 2500,
+    position: 'bottom',
+    color: color
+  });
+  toast.present();
+}
+}

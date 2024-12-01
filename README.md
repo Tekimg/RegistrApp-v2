@@ -40,13 +40,14 @@ ___
 ### Lunes 25
 3. Generacion de APK (Alex)
   Generar apk de la aplicacion
-  
-5.2 Recuperación de contraseña via email (Josefina) 
-  Generar html para enviar el correo al email y recuperar la contraseña de firebase
 
-7. Cambiar "Alumnos presentes" a "Mis asistencias", ingresando los datos que se leyeron en el qr (Hernán)
+8 Implementar API Ubicación + 8.1 Validación ubicación (Alex)
+  Implementación definitiva luego de la necesaria actualización del proyecto a Ionic 7
+
+7. Cambiar "Alumnos presentes" a "Mis asistencias", ingresando los datos que se leyeron en el qr (Hernan)
   Modificar html al nuevo concepto y utilizar las variables anteriormente guardadas al leer el qr
-n. Relacionar datos escaneados al usuario autenticado mediante colecciones de firebase (Josefina y Hernan)
+
+n. Relacionar datos escaneados al usuario autenticado mediante colecciones de firebase (Josefina)
   Guardar los datos escaneados por el usuario en su sesión, con colecciones y documentos de firebase
 
 ___
@@ -55,8 +56,10 @@ ___
 9. API Santoral en HomePage (api.boostr.cl/santorales) (Hernán)
   Implementar una api para mostrar los santos del día
 
-6. Organizar home con nuevos complementos(Josefina)
-  Reacomodar nuevos botones agregados en anteriores semanas para mejor experiencia de usuario
+5.2 Recuperación de contraseña via email (Josefina) 
+  Generar html para enviar el correo al email y recuperar la contraseña de firebase
+  
+
 
 
 ___

@@ -12,50 +12,55 @@
   <div *ngIf="currentUser; else noData">
     <ion-card>
       <ion-list>
+        <!-- Campo RUT -->
         <ion-item>
           <ion-label>
             <h2>RUT</h2>
-            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.rut"  ></ion-input>
+            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.rut" 
+              [ngClass]="{'invalid': !isRutValid()}" placeholder="ej: 20558045-K"></ion-input>
           </ion-label>
         </ion-item>
+
+        <!-- Campo Nombre -->
         <ion-item>
           <ion-label>
             <h2>Nombre</h2>
-            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.name"  ></ion-input>
+            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.name"></ion-input>
           </ion-label>
         </ion-item>
+
+        <!-- Campo Apellidos -->
         <ion-item>
           <ion-label>
             <h2>Apellidos</h2>
-            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.lastname"  ></ion-input>
+            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.lastname"></ion-input>
           </ion-label>
         </ion-item>
+
+        <!-- Campo Correo Electrónico -->
         <ion-item>
           <ion-label>
             <h2>Correo Electrónico</h2>
-            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.email"  ></ion-input>
+            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.email" 
+              [ngClass]="{'invalid': !isEmailValid()}" placeholder="ej: pe.rodriguezs@duocuc.cl"></ion-input>
           </ion-label>
         </ion-item>
+
+        <!-- Campo Número Telefónico -->
         <ion-item>
           <ion-label>
             <h2>Número Telefónico</h2>
-            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.cel"  ></ion-input>
+            <ion-input [disabled]="!isEditing" [(ngModel)]="currentUser.cel" 
+              (keydown)="blockLettersAndAllowDelete($event)" maxlength="9" placeholder="9 8765 4321"></ion-input>
           </ion-label>
         </ion-item>
       </ion-list>
 
-      <!-- Botones de editar y confirmar cambios -->
+      <!-- Botones de edición y confirmación -->
       <div class="btn-container">
         <ion-button *ngIf="!isEditing" (click)="enableEdit()" color="mitema" class="btn1" expand="block">Editar usuario</ion-button>
         <ion-button *ngIf="isEditing" (click)="confirmEdit()" color="success" expand="block">Confirmar Cambios</ion-button>
         <ion-button *ngIf="!isEditing" id="present-alert" color="danger" class="btn3" expand="block" (click)="showDeleteAlert()">Eliminar</ion-button>
-        <!-- <ion-alert
-          trigger="present-alert"
-          header="Confirmar Eliminación"
-          subHeader="Esta acción no se puede deshacer."
-          message="¿Estás seguro que deseas eliminar este usuario?"
-          [buttons]="alertButtons"
-        ></ion-alert> -->
       </div>
     </ion-card>
   </div>
