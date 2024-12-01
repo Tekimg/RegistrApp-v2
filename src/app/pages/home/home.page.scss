@@ -49,3 +49,14 @@ ion-button{
   justify-content: center;  
   align-items: center;  
 }
+
+// Wea del santoral
+.santoral-section {
+  position: relative;
+  z-index: 10;
+}
+
+.santoral-section h3 {
+  text-align: center;
+  color: #333;
+}

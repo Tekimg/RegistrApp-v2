@@ -38,13 +38,13 @@ ___
 ___
 
 ### Lunes 25
-3. Generacion de APK (Hernan)
+3. Generacion de APK (Alex)
   Generar apk de la aplicacion
 
 8 Implementar API Ubicación + 8.1 Validación ubicación (Alex)
   Implementación definitiva luego de la necesaria actualización del proyecto a Ionic 7
 
-7. Cambiar "Alumnos presentes" a "Mis asistencias", ingresando los datos que se leyeron en el qr (Josefina)
+7. Cambiar "Alumnos presentes" a "Mis asistencias", ingresando los datos que se leyeron en el qr (Hernan)
   Modificar html al nuevo concepto y utilizar las variables anteriormente guardadas al leer el qr
 
 n. Relacionar datos escaneados al usuario autenticado mediante colecciones de firebase (Josefina)
