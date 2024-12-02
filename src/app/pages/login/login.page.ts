@@ -27,13 +27,12 @@ export class LoginPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // Limpia las credenciales y los datos en el localStorage cada vez que la vista se muestra
+    // Limpia las credenciales y los datos
     console.log('Página de login recargada');
     this.resetCredentials();
   }
 
   resetCredentials() {
-    // Restablece las credenciales a un objeto vacío
     this.credenciales = { email: '', pass: '' }; 
     localStorage.removeItem('credenciales');
     localStorage.removeItem('user');
@@ -51,7 +50,6 @@ export class LoginPage implements OnInit {
 
       console.log('Usuario autenticado:', this.credenciales);
 
-      // Guardar el token y las credenciales en el localStorage
       localStorage.setItem('token', 'token-auth');
       localStorage.setItem('credenciales', JSON.stringify(this.credenciales));
       localStorage.setItem('user', JSON.stringify(this.user));

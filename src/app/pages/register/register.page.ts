@@ -53,14 +53,14 @@ export class RegisterPage implements OnInit {
   blockLettersAndAllowDelete(event: KeyboardEvent) {
     const key = event.key;
 
-    // Permitir la tecla 'Backspace' (para borrar) y 'Delete'
+    // Permitir la tecla 'Backspace'y'Delete'
     if (key === 'Backspace' || key === 'Delete') {
-      return;  // Si es la tecla de borrado, no hacemos nada y la permitimos
+      return;  
     }
 
     // Bloquear cualquier tecla que no sea un número
     if (!/^[0-9]$/.test(key)) {
-      event.preventDefault();  // Bloquear la tecla presionada si no es un número
+      event.preventDefault();  
     }
   }
 

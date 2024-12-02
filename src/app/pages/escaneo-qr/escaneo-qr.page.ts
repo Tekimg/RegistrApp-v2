@@ -50,19 +50,17 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     console.log('entra y escanea');
   }
 
-  // Función para iniciar el escaneo
   async startScan() {
     this.loadingService.show(); // Muestra el mensaje de loading
     await new Promise(resolve => setTimeout(resolve, 500)); // Simula un proceso largo
 
-    // Limpiar todos los datos antes de comenzar un nuevo escaneo
-    this.scannedData = ''; // Reiniciar el dato escaneado
+    this.scannedData = ''; 
     this.asignatura = '';
     this.seccion = '';
     this.sala = '';
     this.fecha = '';
 
-    this.stopScan(); // Detener cualquier escaneo previo
+    this.stopScan(); 
 
     console.log('Valor de video:', this.video);
 
@@ -85,15 +83,12 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
           this.scannedCompleted = true;
 
           if (!this.currentSede) {
-            // Si no está dentro de la sede, mostrar el mensaje y no procesar el escaneo
             this.showAlert('No estás en el DUOC', 'No estás dentro de ninguna sede DUOC UC. No se guardará la asistencia.');
           } else {
-            // Si está dentro de la sede, mostrar el mensaje de éxito con los datos escaneados
             this.showAlert('Escaneado correctamente', `Resultado: ${this.scannedData}`);
-            this.processScannedData(this.scannedData); // Procesar los datos del QR
+            this.processScannedData(this.scannedData); 
           }
 
-          // Detener el escaneo después de procesar los datos
           this.stopScan();
         }
         if (err && !(err instanceof Error)) {
@@ -105,11 +100,11 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
         this.showAlert('Error', 'No se pudo iniciar el escaneo');
       })
       .finally(() => {
-        this.loadingService.hide(); // Ocultar el loading cuando termine el escaneo o haya error
+        this.loadingService.hide(); 
       });
   }
 
-  // Función para verificar si el usuario está dentro de la sede
+  //verificar si el usuario está dentro de la sede
   async checkLocation() {
     try {
       const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
@@ -134,7 +129,6 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     }
   }
 
-  // Procesa los datos escaneados
   async processScannedData(data: string) {
     console.log('Datos escaneados (raw):', data);
 
@@ -172,7 +166,7 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     };
 
     try {
-      // Llamar a la función para guardar la asistencia
+      //guardar la asistencia
       await this.guardarAsistencia(asistencia);
       console.log('Asistencia guardada correctamente:', asistencia);
     } catch (error) {
@@ -181,7 +175,6 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     }
   }
 
-  // Detiene el escaneo
   stopScan() {
     this.scanning = false;
     const videoElement = this.video.nativeElement;
@@ -189,13 +182,12 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
 
     if (stream) {
       const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop()); // Detener la cámara
+      tracks.forEach(track => track.stop()); 
     }
 
     videoElement.srcObject = null;
   }
 
-  // Muestra una alerta
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
       header,
@@ -205,7 +197,6 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     await alert.present();
   }
 
-  // Muestra un toast
   async msgToast(message: string, status: string) {
     const toast = await this.toast.create({
       message: message,
@@ -215,7 +206,6 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     toast.present();
   }
 
-  // Guarda la asistencia
   async guardarAsistencia(asistencia: any) {
     try {
       if (!asistencia.asignatura || !asistencia.seccion || !asistencia.sala || !asistencia.fecha) {
@@ -223,20 +213,16 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
         return;
       }
 
-      // Obtener el usuario autenticado
       const usuario = await this.firebaseService.obtenerUsuarioAutenticado();
       if (!usuario) {
         console.error('No se encontró un usuario autenticado.');
         return;
       }
 
-      // Asignar el ID del usuario al objeto de asistencia
       asistencia.userId = usuario['id'];
 
-      // Guardar la asistencia en Firebase
       await this.firebaseService.guardarAsistencia(asistencia);
 
-      // Mostrar una alerta de éxito
       this.msgToast('Asistencia guardada exitosamente', 'success');
       console.log('Asistencia guardada en Firebase:', asistencia);
     } catch (error) {

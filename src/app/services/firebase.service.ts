@@ -42,7 +42,7 @@ export class FirebaseService {
     const user= this.auth.currentUser;
     if (user) {
       try {
-        await deleteUser(user);  // Elimina al usuario autenticado de Firebase Authentication
+        await deleteUser(user);  // Elimina al usuario autenticado de firebase
         console.log('Usuario eliminado de Firebase Auth');
       } catch (error) {
         console.error('Error al eliminar usuario de Firebase:', error);
@@ -55,11 +55,9 @@ export class FirebaseService {
       const ref = collection(this.firestore, collectionName); 
       const q = query(ref, where(field, '==', value)); 
       const querySnapshot = await getDocs(q);
-      // Si no se encuentra ningún documento, retornar null
       if (querySnapshot.empty) {
         return null;
       }
-      // Si hay documentos, retornar el primer documento encontrado
       return querySnapshot.docs[0].data();
       console.log()
 
@@ -70,7 +68,7 @@ export class FirebaseService {
   }
 
   async obtenerUsuarioAutenticado() {
-    const user = this.auth.currentUser; // Obtener el usuario autenticado de Firebase Auth
+    const user = this.auth.currentUser; 
     console.log('user', user);
     
     if (!user) {
@@ -84,7 +82,6 @@ export class FirebaseService {
       return null;
     }
   
-    // Buscar el documento del usuario en la colección 'Users' usando su email
     const usuario = await this.getDocumentByField('Users', 'email', email);
     if (!usuario) {
       console.error('No se encontró un usuario con este email en la colección.');
@@ -92,17 +89,15 @@ export class FirebaseService {
     }
   
     console.log('Usuario autenticado encontrado:', usuario);
-    return usuario; // Devuelve toda la información del usuario
+    return usuario; 
   }
   
   
- // Guardar asistencia
   async guardarAsistencia(data: any) {
     const asistenciasCollection = collection(this.firestore, 'Asistencias');
     return await addDoc(asistenciasCollection, data);
   }
 
-  // Obtener asistencias de un usuario específico
   async obtenerAsistenciasPorUsuario(userId: string) {
     const asistenciasCollection = collection(this.firestore, 'Asistencias');
     const q = query(asistenciasCollection, where('userId', '==', userId));
@@ -118,12 +113,9 @@ async findUserByEmail(email: string): Promise<boolean> {
     const q = query(usersCollection, where('email', '==', email));
     const querySnapshot = await getDocs(q);
 
-    // Si no encuentra ningún documento, retorna false
     if (querySnapshot.empty) {
       return false;
     }
-
-    // Si encuentra el documento, retorna true
     return true;
   } catch (error) {
     console.error("Error buscando el correo en la colección Users:", error);
@@ -131,7 +123,6 @@ async findUserByEmail(email: string): Promise<boolean> {
   }
 }
 
-// Función para enviar el correo de restablecimiento de contraseña
 async sendPasswordReset(email: string): Promise<void> {
   try {
     await sendPasswordResetEmail(this.auth, email);
