@@ -39,37 +39,40 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     private locationService: LocationService,
   ) {
     this.codeReader = new BrowserMultiFormatReader();
+    console.log('alo');
+    
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.stopScan();
   }
 
   ngAfterViewInit() {
+    
     this.startScan(); // Iniciar escaneo automáticamente al entrar en la página
     console.log('entra y escanea');
   }
 
   async startScan() {
-    this.loadingService.show(); // Muestra el mensaje de loading
+    this.loadingService.show(); // Muestra un indicador de carga
     await new Promise(resolve => setTimeout(resolve, 500)); // Simula un proceso largo
-
+  
     this.scannedData = ''; 
     this.asignatura = '';
     this.seccion = '';
     this.sala = '';
     this.fecha = '';
-
+  
     this.stopScan(); 
-
+  
     console.log('Valor de video:', this.video);
-
+  
     if (!this.video) {
       console.error('Elemento video no está disponible');
       this.loadingService.hide(); // Ocultar el loading en caso de error con el video
       return;
     }
-
+  
     this.scanning = true;
     this.codeReader
       .decodeFromVideoDevice(undefined, this.video.nativeElement, async (result: any, err: any) => {
@@ -77,19 +80,8 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
           this.scanningSpace = false;
           this.scannedData = result.getText();
           this.scanning = false;
-
-          // Primero verificamos si el usuario está dentro de la sede
-          await this.checkLocation();
-          this.scannedCompleted = true;
-
-          if (!this.currentSede) {
-            this.showAlert('No estás en el DUOC', 'No estás dentro de ninguna sede DUOC UC. No se guardará la asistencia.');
-          } else {
-            this.showAlert('Escaneado correctamente', `Resultado: ${this.scannedData}`);
-            this.processScannedData(this.scannedData); 
-          }
-
-          this.stopScan();
+  
+          await this.handleScanCompletion();
         }
         if (err && !(err instanceof Error)) {
           console.error(err);
@@ -103,6 +95,32 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
         this.loadingService.hide(); 
       });
   }
+  
+  async handleScanCompletion() {
+    try {
+      // Verifica la ubicación
+      await this.checkLocation();
+  
+      // Si no estás en una sede, muestra un mensaje
+      if (!this.currentSede) {
+        this.showAlert(
+          'No estás en el DUOC',
+          'No estás dentro de ninguna sede DUOC UC. No se guardará la asistencia.'
+        );
+        return;
+      }
+  
+      // Procesa los datos escaneados
+      await this.processScannedData(this.scannedData);
+  
+      // Muestra un mensaje de éxito
+      this.showAlert('Escaneado correctamente', `Resultado: ${this.scannedData}`);
+    } catch (error) {
+      console.error('Error al completar el escaneo:', error);
+      this.showAlert('Error', 'Hubo un problema al procesar el escaneo.');
+    }
+  }
+  
 
   //verificar si el usuario está dentro de la sede
   async checkLocation() {
@@ -175,18 +193,28 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     }
   }
 
+  
   stopScan() {
-    this.scanning = false;
-    const videoElement = this.video.nativeElement;
-    const stream = videoElement.srcObject as MediaStream;
-
-    if (stream) {
-      const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop()); 
+    try {
+      this.scanning = false;
+  
+      if (this.video && this.video.nativeElement) {
+        const videoElement = this.video.nativeElement;
+        const stream = videoElement.srcObject as MediaStream;
+  
+        if (stream) {
+          const tracks = stream.getTracks();
+          tracks.forEach(track => track.stop()); 
+        }
+  
+        videoElement.srcObject = null;
+      }
+  
+    } catch (error) {
+      console.error('Error al detener el escaneo:', error);
     }
-
-    videoElement.srcObject = null;
   }
+  
 
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
