@@ -22,7 +22,10 @@ import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent, LoadingComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, CommonModule, AngularFireModule.initializeApp(environment.firebase),AngularFireAuthModule],
+  imports: [BrowserModule, 
+    IonicModule.forRoot(), 
+    AppRoutingModule, CommonModule, AngularFireModule.initializeApp(environment.firebase),AngularFireAuthModule, HttpClientModule],
+    
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy},
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()), 

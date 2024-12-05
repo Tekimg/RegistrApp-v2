@@ -14,7 +14,7 @@
     <div class="ion-padding">
       <form>
         <ion-item>
-          <ion-input [(ngModel)]="newUser.rut" name="rut" label="RUT" maxlength=11 [pattern]="rutP"
+          <ion-input [(ngModel)]="newUser.rut" name="rut" label="RUT" maxlength=10 [pattern]="rutP"
             [ngClass]="{'invalid':!isRutValid()}" labelPlacement="floating" placeholder="ej:20558045-K"></ion-input>
         </ion-item>
         <br>

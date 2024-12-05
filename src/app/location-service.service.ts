@@ -12,7 +12,7 @@ export class LocationService {
   constructor() {
     const loader = new Loader({
       apiKey: 'AIzaSyA0v03W617Sq9vYpf6sI85l6ElaZzpEmr8',
-      libraries: ['geometry'], // Incluye la librería de geometría
+      libraries: ['geometry'], 
     });
 
     loader.load().then((google) => {
