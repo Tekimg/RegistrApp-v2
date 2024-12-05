@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { FirebaseService } from 'src/app/services/firebase.service';
-
 import { SantoralService } from 'src/app/services/santoral.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +17,7 @@ export class HomePage implements OnInit {
   users: any[] = []; 
 
   // Santoral
-  santos: any[] = []; // Variable para almacenar los datos de la API
+  santos: any[] = []; 
 
   constructor(
     private firebaseService: FirebaseService,
@@ -37,29 +37,25 @@ export class HomePage implements OnInit {
   }
 
   // Método para obtener los santos del día
-  obtenerSantos() {
-    this.santoralService.getSantosDelDia().subscribe(
+  async obtenerSantos() {
+    await this.santoralService.getSantosDelDia().subscribe(
       (response) => {
         console.log('Santos del día:', response);
 
-        // Extrae los datos por meses y días
         const allSantos = response.data;
 
-        // Fecha actual
         const now = new Date();
-        const mesActual = now.toLocaleString('es-ES', { month: 'long' }).toLowerCase(); // Ej: 'noviembre'
-        const diaActual = now.getDate(); // Día del mes (1-31)
+        const mesActual = now.toLocaleString('es-ES', { month: 'long' }).toLowerCase(); 
+        const diaActual = now.getDate(); 
 
-        // Accede al mes y día correspondiente
-        const santosHoy = allSantos[mesActual]?.[diaActual - 1]; // Restamos 1 porque los arrays son 0-indexados
+        const santosHoy = allSantos[mesActual]?.[diaActual - 1]; 
 
-        // Si es un string, lo convertimos en un array para que *ngFor funcione
         if (typeof santosHoy === 'string') {
           this.santos = [santosHoy];
         } else if (Array.isArray(santosHoy)) {
           this.santos = santosHoy;
         } else {
-          this.santos = []; // Si no hay santos, asignamos un array vacío
+          this.santos = []; 
         }
 
         console.log('Santos procesados (hoy):', this.santos);
@@ -71,34 +67,29 @@ export class HomePage implements OnInit {
     );
   }
 
-  // Función para cargar los usuarios desde Firebase
+  //cargar los usuarios desde Firebase
   loadUsers() {
     this.firebaseService.getCollectionChanges<User>('Users').subscribe(data => {
       if (data) {
-        this.users = data; // Almacenar los usuarios en el array 'users'
+        this.users = data; 
         console.log('Usuarios cargados desde Firebase:', this.users);
 
-        // Recuperar el correo del localStorage
         const storedEmail = localStorage.getItem('credenciales');
         
         if (storedEmail) {
           const credenciales = JSON.parse(storedEmail);
           const email = credenciales.email;
 
-          // Filtrar por el correo del usuario de la sesión
           this.filterUserByEmail(email);
         }
       }
     });
   }
 
-  // Función para filtrar el usuario que corresponde al correo de la sesión
   filterUserByEmail(email: string) {
-    // Filtramos el array de usuarios para encontrar el que coincida con el correo de la sesión
     const user = this.users.find(userData => userData.email === email);
     
     if (user) {
-      // Extraemos la información relevante
       this.name = user.name;
       this.currentUser = {
         id: user.id,
@@ -110,7 +101,7 @@ export class HomePage implements OnInit {
         cel: user.cel
       };
       this.authService.setCurrentUser(this.currentUser)
-      // Mostrar la información del usuario encontrado
+      localStorage.setItem('userId',user.id)
       console.log('Datos del usuario:', this.currentUser);
     }
   }
@@ -121,6 +112,8 @@ export class HomePage implements OnInit {
     console.log('user',localStorage.getItem('user'))
     localStorage.removeItem('token');
     console.log('toke',localStorage.getItem('token'))
+    localStorage.removeItem('userId');
+    console.log('id',localStorage.getItem('userId'))
     this.router.navigate(['/login']);
   }
 }

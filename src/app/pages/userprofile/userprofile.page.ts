@@ -15,11 +15,9 @@ export class UserprofilePage implements OnInit {
   currentUser: User | null = null;  
   isEditing: boolean = false;
 
-  // Expresiones regulares para validación
   emailP = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   rutP: string = '^[0-9]{7,8}-[0-9Kk]{1}$';
 
-  // Alerta de eliminación de usuario
   alertButtons = [
     {
       text: 'Cancelar',
@@ -45,20 +43,17 @@ export class UserprofilePage implements OnInit {
     this.loadUsers();
   }
 
-  // Validación del RUT
   isRutValid(): boolean {
     const rut = this.currentUser?.rut ? String(this.currentUser.rut) : '';
     const rutRegex = new RegExp(this.rutP);
     return rutRegex.test(rut);
   }
 
-  // Validación del correo electrónico
   isEmailValid(): boolean {
     const email = this.currentUser?.email ? String(this.currentUser.email) : '';
     return this.emailP.test(email);
   }
 
-  // Bloquear letras en el número telefónico
   blockLettersAndAllowDelete(event: KeyboardEvent) {
     const key = event.key;
 
@@ -89,7 +84,6 @@ export class UserprofilePage implements OnInit {
     });
   }
 
-  // Filtrar el usuario por correo electrónico
   filterUserByEmail(email: string) {
     const user = this.users.find(u => u.email === email);
     
@@ -119,7 +113,7 @@ export class UserprofilePage implements OnInit {
     }
     
     try {
-      // Actualizar los datos
+      // actualizar los datos
       await this.firebaseService.updateDocument(this.currentUser, 'Users', this.currentUser.id);
       this.msgToast('Perfil actualizado correctamente', 'success');
       this.isEditing = false;
@@ -143,7 +137,6 @@ export class UserprofilePage implements OnInit {
     }
   }
 
-  // Mostrar un Toast con el mensaje
   async msgToast(message: string, color: string) {
     const toast = await this.toast.create({
       message: message,
@@ -154,7 +147,6 @@ export class UserprofilePage implements OnInit {
     await toast.present();
   }
 
-  // Mostrar la alerta para eliminar el perfil
   async showDeleteAlert() {
     const alert = await this.alertController.create({
       header: 'Eliminar cuenta',

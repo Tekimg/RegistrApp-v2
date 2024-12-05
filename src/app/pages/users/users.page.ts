@@ -20,7 +20,6 @@ export class UsersPage implements AfterViewInit, OnInit {
   ) {}
 
   ngOnInit() {
-    // Aquí solo cargamos los datos si no existen
     const storedUser = this.authService.getCurrentUser();
     if (storedUser) {
       this.loadUserAndAsistencias();
@@ -30,13 +29,11 @@ export class UsersPage implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
-    // Si no hay usuario autenticado, solo cargamos la información una vez
     if (this.currentUser) {
       this.loadAsistencias(this.currentUser.id);
     }
   }
 
-  // Cargar el usuario autenticado y sus asistencias
   async loadUserAndAsistencias() {
     const currentUser = this.authService.getCurrentUser();
     
@@ -52,7 +49,6 @@ export class UsersPage implements AfterViewInit, OnInit {
 
   async loadAsistencias(userId: string) {
     try {
-      // Obtener asistencias desde Firebase para el usuario autenticado
       const asistencias = await this.firebaseService.obtenerAsistenciasPorUsuario(userId);
       this.asistencias = asistencias;
       console.log('Asistencias del usuario:', this.asistencias);
@@ -60,6 +56,4 @@ export class UsersPage implements AfterViewInit, OnInit {
       console.error('Error al cargar las asistencias:', error);
     }
   }
-
-  
 }

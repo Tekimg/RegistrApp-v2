@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
-import { ErrorHandler } from '@angular/core';
+import { LoadingService } from 'src/app/loading.service';
 import { FirebaseService } from 'src/app/services/firebase.service';
 
 @Component({
@@ -19,7 +19,8 @@ export class LoginPage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private auth: AuthService,
-    private firebase: FirebaseService
+    private firebase: FirebaseService,
+    private loading: LoadingService
   ) { }
 
   ngOnInit() {
@@ -27,20 +28,22 @@ export class LoginPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // Limpia las credenciales y los datos en el localStorage cada vez que la vista se muestra
+    // Limpia las credenciales y los datos
     console.log('Página de login recargada');
     this.resetCredentials();
   }
 
   resetCredentials() {
-    // Restablece las credenciales a un objeto vacío
     this.credenciales = { email: '', pass: '' }; 
     localStorage.removeItem('credenciales');
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
   }
 
   async login() {
+    console.log('loading login');
+    this.loading.show(100);
     try {
       if (!this.credenciales.email || !this.credenciales.pass) {
         this.msgToast('Por favor ingresa todos los campos', 'tertiary');
@@ -51,7 +54,6 @@ export class LoginPage implements OnInit {
 
       console.log('Usuario autenticado:', this.credenciales);
 
-      // Guardar el token y las credenciales en el localStorage
       localStorage.setItem('token', 'token-auth');
       localStorage.setItem('credenciales', JSON.stringify(this.credenciales));
       localStorage.setItem('user', JSON.stringify(this.user));
@@ -71,6 +73,9 @@ export class LoginPage implements OnInit {
         this.msgToast('Error al autenticar', 'danger');
         console.log(error);
       }
+    }finally{
+      console.log('loading login hide');
+      this.loading.hide();
     }
   }
 

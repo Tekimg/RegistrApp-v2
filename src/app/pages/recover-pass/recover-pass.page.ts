@@ -11,9 +11,9 @@ import { FirebaseService } from 'src/app/services/firebase.service';
   styleUrls: ['./recover-pass.page.scss'],
 })
 export class RecoverPassPage implements OnInit {
-  username: string = ''; // Variable para el correo
-  newPass: string = ''; // Variable para la nueva contraseña
-  userFound: boolean = false; // Variable para verificar si el usuario existe
+  username: string = ''; 
+  newPass: string = ''; 
+  userFound: boolean = false; 
 
   constructor(
     private toastController: ToastController,
@@ -34,21 +34,18 @@ export class RecoverPassPage implements OnInit {
     await toast.present();
   }
 
-  // Función para buscar usuario y enviar correo de recuperación
   async findUser() {
     if (!this.username) {
       await this.msgToast('Por favor ingrese un correo', 'danger');
       return;
     }
   
-    // Verificar si el correo existe en la colección 'Users'
     const userExists = await this.firebaseService.findUserByEmail(this.username);
   
     if (!userExists) {
       await this.msgToast('El correo no está registrado', 'danger');
-      this.username = ''; // Limpiar el campo
+      this.username = ''; 
     } else {
-      // Si el correo existe, enviar correo para restablecer la contraseña
       await this.firebaseService.sendPasswordReset(this.username);
       this.router.navigate(['/login']);
     }

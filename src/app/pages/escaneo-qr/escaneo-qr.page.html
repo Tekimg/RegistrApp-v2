@@ -1,4 +1,4 @@
-<ion-header>
+  <ion-header>
   <ion-toolbar class="hdr1" color="mitema">
     <ion-title>
       <h3>Agregar asistencia</h3>
@@ -10,12 +10,11 @@
 <ion-content>
 
   <div class="scanner-container">
-    <h2>Escanea el QR</h2>
-
-
     <br>
+    <h2>Escanea el QR</h2>
     <!-- Camara -->
     <div *ngIf="scanningSpace">
+      <br>
       <video #video width="100%" height="auto"></video>
     </div>
 
@@ -33,10 +32,21 @@
         </ion-card-content>
       </ion-card>
 
-      <ion-card *ngIf="!currentSede">
+      <ion-card *ngIf="asis">
+        <ion-card-header>
+          <h3>Ya se ha registrado una asistencia con estos atributos</h3>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Asignatura: {{ asignatura }}</p>
+          <p>Sección: {{ seccion }}</p>
+          <p>Sala: {{ sala }}</p>
+          <p>Fecha: {{ fecha }}</p>
+        </ion-card-content>
+      </ion-card>
+      <ion-card *ngIf="!currentSede && !asis">
         <ion-card-content>
           <br>
-          <h3>No se registró la información del escaneo.</h3>
+          <h3>No se encuentra dentro de la sede, no se registró la información del escaneo.</h3>
           <br>
         </ion-card-content>
       </ion-card>
