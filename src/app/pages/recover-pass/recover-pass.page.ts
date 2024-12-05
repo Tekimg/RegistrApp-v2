@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { AngularFireAuth } from '@angular/fire/compat/auth'; // Asegúrate de tener este import
+import { FirebaseService } from 'src/app/services/firebase.service';
 
 
 @Component({
@@ -9,48 +11,44 @@ import { ToastController } from '@ionic/angular';
   styleUrls: ['./recover-pass.page.scss'],
 })
 export class RecoverPassPage implements OnInit {
-  username: string = '';
-  newPass: string = '';
+  username: string = ''; 
+  newPass: string = ''; 
   userFound: boolean = false; 
 
   constructor(
     private toastController: ToastController,
-    private router: Router
+    private router: Router,
+    private afAuth: AngularFireAuth,
+    private firebaseService: FirebaseService
   ) {}
 
   ngOnInit() {}
 
-/*
-  findUser() {
-    const found = this.loginService.findUserByUsername(this.username);
-    if (found) {
-      this.userFound = true;
-      this.msgToast('Usuario encontrado','sucess');
-    } else {
-      this.userFound = false;
-      this.msgToast('Usuario no encontrado','danger');
-    }
-  }
-
-  updatePass() {
-    if (this.newPass.trim() !== '') {
-      this.loginService.updateUserPass(this.username, this.newPass);
-      this.msgToast('Cambio realizado','success');
-      this.userFound = false;
-      this.username = '';
-      this.newPass = '';
-      this.router.navigate(['/login']); 
-    } else {
-      this.msgToast('Ingrese una contraseña','danger');;
-  }}
-*/
-  async msgToast(message: string, color: string){
+  async msgToast(message: string, color: string) {
     const toast = await this.toastController.create({
       message: message,
       duration: 2500,
       position: 'bottom',
-      color: color
+      color: color,
     });
     await toast.present();
   }
+
+  async findUser() {
+    if (!this.username) {
+      await this.msgToast('Por favor ingrese un correo', 'danger');
+      return;
+    }
+  
+    const userExists = await this.firebaseService.findUserByEmail(this.username);
+  
+    if (!userExists) {
+      await this.msgToast('El correo no está registrado', 'danger');
+      this.username = ''; 
+    } else {
+      await this.firebaseService.sendPasswordReset(this.username);
+      this.router.navigate(['/login']);
+    }
+  }
+  
 }

@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
-import { FirebaseService, } from 'src/app/services/firebase.service';
+import { FirebaseService } from 'src/app/services/firebase.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-
 
 @Component({
   selector: 'app-userprofile',
@@ -16,7 +15,9 @@ export class UserprofilePage implements OnInit {
   currentUser: User | null = null;  
   isEditing: boolean = false;
 
-  // Alerta de eliminación de usuario
+  emailP = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  rutP: string = '^[0-9]{7,8}-[0-9Kk]{1}$';
+
   alertButtons = [
     {
       text: 'Cancelar',
@@ -33,53 +34,44 @@ export class UserprofilePage implements OnInit {
 
   constructor(
     private firebaseService: FirebaseService,
-    private toast:ToastController,
-    private router:Router,
-    private authService:AuthService,
+    private toast: ToastController,
+    private router: Router,
+    private authService: AuthService,
     private alertController: AlertController) {}
-
-  
-  // Mostrar alerta de confirmación para eliminar usuario
-  async showDeleteAlert() {
-    const alert = await this.alertController.create({
-      header: 'Confirmar eliminación',
-      message: '¿Estás seguro de que deseas eliminar este usuario?',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            console.log('Eliminación cancelada');
-          },
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          handler: () => {
-            // Llama a eliminarUser solo al confirmar
-            this.eliminarUser();
-          },
-        },
-      ],
-    });
-
-    await alert.present();
-  }
 
   ngOnInit() {
     this.loadUsers();
+  }
 
-  
-}
+  isRutValid(): boolean {
+    const rut = this.currentUser?.rut ? String(this.currentUser.rut) : '';
+    const rutRegex = new RegExp(this.rutP);
+    return rutRegex.test(rut);
+  }
 
-  // Cargar usuarios 
+  isEmailValid(): boolean {
+    const email = this.currentUser?.email ? String(this.currentUser.email) : '';
+    return this.emailP.test(email);
+  }
+
+  blockLettersAndAllowDelete(event: KeyboardEvent) {
+    const key = event.key;
+
+    // Permitir la tecla 'Backspace' o 'Delete'
+    if (key === 'Backspace' || key === 'Delete') {
+      return;  
+    }
+
+    // Bloquear cualquier tecla que no sea un número
+    if (!/^[0-9]$/.test(key)) {
+      event.preventDefault();
+    }
+  }
+
   loadUsers() {
     this.firebaseService.getCollectionChanges<User>('Users').subscribe(data => {
       if (data) {
         this.users = data; 
-        console.log('Usuarios cargados desde Firebase:', this.users);
-
-        // Recuperar el email d
         const storedEmail = localStorage.getItem('credenciales');
         
         if (storedEmail) {
@@ -92,75 +84,75 @@ export class UserprofilePage implements OnInit {
     });
   }
 
-  // Función para filtrar
   filterUserByEmail(email: string) {
     const user = this.users.find(u => u.email === email);
     
     if (user) {
       this.currentUser = user;
-      console.log('Usuario filtrado:', this.currentUser);
-      console.log('id',this.currentUser.id);
-      
     }
   }
 
-  //editar informacion de usuario
   enableEdit() {
     this.isEditing = true;
   }
+
   async confirmEdit() {
+    if (!this.isRutValid()) {
+      this.msgToast('El RUT ingresado no es válido', 'danger');
+      return;
+    }
+
+    if (!this.isEmailValid()) {
+      this.msgToast('Correo electrónico no válido', 'danger');
+      return;
+    }
+
+    if (!this.currentUser?.cel || String(this.currentUser?.cel).length < 9) {
+      this.msgToast('Número telefónico no válido', 'danger');
+      return;
+    }
+    
     try {
-      // Validación de currentUser
-      if (this.currentUser) {
-        // Actualizar los datos
-        await this.firebaseService.updateDocument(this.currentUser, 'Users', this.currentUser.id);
-        this.msgToast('Perfil actualizado correctamente', 'success');
-        console.log('nuevos datos:', this.currentUser)
-        
-        this.isEditing = false;
-      } else {
-        // Mostrar un mensaje de error si no hay usuario
-        this.msgToast('No hay un usuario autenticado para actualizar', 'danger');
-      }
+      // actualizar los datos
+      await this.firebaseService.updateDocument(this.currentUser, 'Users', this.currentUser.id);
+      this.msgToast('Perfil actualizado correctamente', 'success');
+      this.isEditing = false;
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       this.msgToast('Error al actualizar el perfil', 'danger');
     }
   }
-  
-  //eliminar usuario
-  async deleteUserAcc(collection: string, userId: string) {
-    //eliminar el usuario de Firebase Auth
+
+  async eliminarUser() {
+    const userId = this.currentUser?.id;  
+    const collection = 'Users';  
+    
     try {
-      //eliminar el documento de Firestore
       await this.firebaseService.deleteDocAuth(collection, userId);
-       
-      console.log('DOcumento eliminado');
+      this.msgToast('Usuario eliminado exitosamente', 'success');
+      this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error al eliminar documento de usuario:', error);
+      console.error('Error al eliminar usuario:', error);
+      this.msgToast('Error al eliminar usuario', 'danger');
     }
   }
-  
-  async eliminarUser(){
-    // mensaje de confirmacion
 
-    //funcion eliminar
-    const userId = this.currentUser.id;  // O cualquier otro campo único que identifique al usuario
-    const collection = 'Users';  // Nombre de la colección en Firestore
-    
-    await this.deleteUserAcc(collection,userId);
-    this.msgToast('Usuario eliminado exitosamente, redirigiendo a login', 'succes')
-    this.router.navigate(['/login']);
-  }
-
-
-  async msgToast(message: string, color: string){
+  async msgToast(message: string, color: string) {
     const toast = await this.toast.create({
       message: message,
       duration: 2500,
       position: 'bottom',
       color: color
     });
-    
+    await toast.present();
+  }
+
+  async showDeleteAlert() {
+    const alert = await this.alertController.create({
+      header: 'Eliminar cuenta',
+      message: '¿Estás seguro de que deseas eliminar tu cuenta?',
+      buttons: this.alertButtons
+    });
+    await alert.present();
   }
 }
