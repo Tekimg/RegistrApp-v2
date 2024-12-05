@@ -132,6 +132,50 @@ async sendPasswordReset(email: string): Promise<void> {
     this.showToast('Hubo un error al enviar el correo, intenta nuevamente', 'danger');
   }
 }
+
+async verificarAsistencia(asistencia: any): Promise<boolean> {
+  console.log('Iniciando verificación de asistencia...');
+  
+  
+
+    // Definir la colección
+    const asistenciasCollection = collection(this.firestore, 'Asistencias');
+
+    // Crear la consulta
+    const q = query(
+      asistenciasCollection,
+      where('asignatura', '==', asistencia.asignatura),
+      where('fecha', '==', asistencia.fecha), // Asegúrate de que el tipo de dato coincida
+      where('sala', '==', asistencia.sala),
+      where('seccion', '==', asistencia.seccion),
+      where('userId', '==', asistencia.userId)
+    );
+
+    // Log para depuración
+    console.log('Datos enviados a la consulta:', asistencia);
+
+    // Ejecutar la consulta
+    const querySnapshot = await getDocs(q);
+
+    // Depurar los resultados
+    if (querySnapshot.empty) {
+      console.log('No se encontraron coincidencias para la asistencia.');
+    } else {
+      querySnapshot.forEach(doc => {
+        console.log('Documento encontrado:', doc.data());
+      });
+    }
+
+    // Retornar true si se encontró algún documento
+    return !querySnapshot.empty;
+  
+  
+}
+
+
+
+
+
 async showToast(message: string, color: string): Promise<void> {
   const toast = await this.toastController.create({
     message: message,

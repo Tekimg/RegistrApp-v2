@@ -18,11 +18,12 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
 
   // Variables del qr
   scannedData: string = '';
-  asignatura: string = ''; 
-  seccion: string = ''; 
-  sala: string = ''; 
-  fecha: string = ''; 
+  asignatura: string = '';
+  seccion: string = '';
+  sala: string = '';
+  fecha: string = '';
   scannedCompleted: boolean = false;
+  asis:boolean=false
 
 
   private codeReader: BrowserMultiFormatReader;
@@ -39,8 +40,8 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     private locationService: LocationService,
   ) {
     this.codeReader = new BrowserMultiFormatReader();
-    console.log('alo');
-    
+    console.log('entra');
+
   }
 
   ngOnDestroy() {
@@ -48,81 +49,149 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    
-    this.startScan(); // Iniciar escaneo automáticamente al entrar en la página
+
+    this.startScan(); 
     console.log('entra y escanea');
   }
 
   async startScan() {
-    this.loadingService.show(); // Muestra un indicador de carga
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simula un proceso largo
+    this.loadingService.show(50);
+    try {
+      this.scannedData = '';
+      this.asignatura = '';
+      this.seccion = '';
+      this.sala = '';
+      this.fecha = '';
+      this.scannedCompleted = false;
   
-    this.scannedData = ''; 
-    this.asignatura = '';
-    this.seccion = '';
-    this.sala = '';
-    this.fecha = '';
+      this.stopScan();
   
-    this.stopScan(); 
+      if (!this.video || !this.video.nativeElement) {
+        throw new Error('Elemento video no está disponible');
+      }
   
-    console.log('Valor de video:', this.video);
+      this.scanning = true;
   
-    if (!this.video) {
-      console.error('Elemento video no está disponible');
-      this.loadingService.hide(); // Ocultar el loading en caso de error con el video
-      return;
+      await this.codeReader.decodeFromVideoDevice(
+        undefined,
+        this.video.nativeElement,
+        async (result: any, err: any) => {
+          try {
+            if (result && this.scanning) {
+              this.scannedData = result.getText();
+              this.scanning = false;
+  
+              await this.finalizeScan();
+            } else if (err && !(err instanceof Error)) {
+              console.error('Error en decodeFromVideoDevice:', err);
+            }
+          } catch (error) {
+            console.error('Error durante el procesamiento del escaneo:', error);
+          } finally {
+            this.loadingService.hide();
+          }
+        }
+      );
+    } catch (error: any) {
+      console.error('Error en el escaneo:', error);
+      this.showAlert('Error', error.message || 'No se pudo iniciar el escaneo');
+    } finally {
+      this.loadingService.hide();
     }
+  }
   
-    this.scanning = true;
-    this.codeReader
-      .decodeFromVideoDevice(undefined, this.video.nativeElement, async (result: any, err: any) => {
-        if (result && this.scanning) {
-          this.scanningSpace = false;
-          this.scannedData = result.getText();
-          this.scanning = false;
-  
-          await this.handleScanCompletion();
-        }
-        if (err && !(err instanceof Error)) {
-          console.error(err);
-        }
-      })
-      .catch((error: any) => {
-        console.error('Error en el escaneo: ', error);
-        this.showAlert('Error', 'No se pudo iniciar el escaneo');
-      })
-      .finally(() => {
-        this.loadingService.hide(); 
-      });
+  async finalizeScan() {
+    this.loadingService.show(100); 
+    try {
+      await this.handleScanCompletion();
+    } catch (error) {
+      console.error('Error al completar el escaneo:', error);
+      this.showAlert('Error', 'Hubo un problema al procesar el escaneo.');
+    } finally {
+      this.loadingService.hide(); 
+    }
   }
   
   async handleScanCompletion() {
+    console.log('loading resultado');
+    this.loadingService.show(100);
     try {
-      // Verifica la ubicación
-      await this.checkLocation();
-  
-      // Si no estás en una sede, muestra un mensaje
-      if (!this.currentSede) {
+      await this.processScannedData(this.scannedData);
+      console.log('ses',localStorage);
+      const asistencia = {
+        asignatura: this.asignatura,
+        fecha: this.fecha.trim().replace('\n', ''),
+        sala: this.sala,
+        seccion: this.seccion,
+        userId: localStorage.getItem('userId')
+        
+      };
+      console.log('Asistencia:', asistencia);
+
+      const exists = await this.firebaseService.verificarAsistencia(asistencia);
+      console.log('¿La asistencia existe?:', exists);
+      
+      if (exists) {
+        this.asis=true
         this.showAlert(
-          'No estás en el DUOC',
-          'No estás dentro de ninguna sede DUOC UC. No se guardará la asistencia.'
+          'Asistencia ya registrada',
+          'Ya has registrado tu asistencia con este código.'
         );
         return;
-      }
+      }else{
+        await this.checkLocation();
+        if (!this.currentSede) {
+          this.showAlert(
+            'No estás en el DUOC',
+            'No estás dentro de ninguna sede DUOC UC. No se guardará la asistencia.'
+          );
+          return;
+        }
+      }    
   
-      // Procesa los datos escaneados
-      await this.processScannedData(this.scannedData);
+      await this.guardarAsistencia(asistencia);
+      console.log('Asistencia guardada correctamente:', asistencia);
   
-      // Muestra un mensaje de éxito
       this.showAlert('Escaneado correctamente', `Resultado: ${this.scannedData}`);
     } catch (error) {
       console.error('Error al completar el escaneo:', error);
       this.showAlert('Error', 'Hubo un problema al procesar el escaneo.');
+    } finally {
+      this.loadingService.hide(); 
+      this.scanningSpace=false; 
     }
   }
   
+  async processScannedData(data: string) {
+    console.log('Datos escaneados (raw):', data);
+  
+    if (!data.includes('|')) {
+      console.error('Formato inválido: no contiene el caracter "|"');
+      return;
+    }
+  
+    const parts = data.split('|');
+    console.log('Partes separadas:', parts);
+  
+    if (parts.length !== 4) {
+      console.error('Formato inválido: no contiene 4 partes');
+      return;
+    }
+  
+    this.asignatura = parts[0];
+    this.seccion = parts[1];
+    this.sala = parts[2];
+    this.fecha = parts[3];
+  
+    console.log('Asignatura:', this.asignatura);
+    console.log('Sección:', this.seccion);
+    console.log('Sala:', this.sala);
+    console.log('Fecha:', this.fecha);
+  
+    this.cdr.detectChanges();
+  }
+  
 
-  //verificar si el usuario está dentro de la sede
   async checkLocation() {
     try {
       const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
@@ -131,7 +200,6 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
 
       console.log(`Latitud: ${lat}, Longitud: ${lng}`);
 
-      // Verifica si el usuario está dentro de una sede con la tolerancia de 100 metros
       const insideSede = await this.locationService.isInsideSede(lat, lng);
 
       if (insideSede) {
@@ -147,74 +215,26 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
     }
   }
 
-  async processScannedData(data: string) {
-    console.log('Datos escaneados (raw):', data);
-
-    if (!data.includes('|')) {
-      console.error('Formato inválido: no contiene el caracter "|"');
-      return;
-    }
-
-    const parts = data.split('|');
-    console.log('Partes separadas:', parts);
-
-    if (parts.length !== 4) {
-      console.error('Formato inválido: no contiene 4 partes');
-      return;
-    }
-
-    this.asignatura = parts[0];
-    this.seccion = parts[1];
-    this.sala = parts[2];
-    this.fecha = parts[3];
-
-    console.log('Asignatura:', this.asignatura);
-    console.log('Sección:', this.seccion);
-    console.log('Sala:', this.sala);
-    console.log('Fecha:', this.fecha);
-
-    this.cdr.detectChanges(); // Detectar cambios
-
-    // Si está dentro de la sede, se guarda la asistencia
-    const asistencia = {
-      asignatura: this.asignatura,
-      seccion: this.seccion,
-      sala: this.sala,
-      fecha: this.fecha
-    };
-
-    try {
-      //guardar la asistencia
-      await this.guardarAsistencia(asistencia);
-      console.log('Asistencia guardada correctamente:', asistencia);
-    } catch (error) {
-      console.error('Error al guardar la asistencia:', error);
-      this.showAlert('Error', 'Hubo un problema al guardar la asistencia.');
-    }
-  }
-
-  
   stopScan() {
     try {
       this.scanning = false;
-  
+
       if (this.video && this.video.nativeElement) {
         const videoElement = this.video.nativeElement;
         const stream = videoElement.srcObject as MediaStream;
-  
+
         if (stream) {
           const tracks = stream.getTracks();
-          tracks.forEach(track => track.stop()); 
+          tracks.forEach(track => track.stop());
         }
-  
+
         videoElement.srcObject = null;
       }
-  
+
     } catch (error) {
       console.error('Error al detener el escaneo:', error);
     }
   }
-  
 
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
@@ -240,17 +260,15 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
         console.error('Datos incompletos para guardar la asistencia');
         return;
       }
-
       const usuario = await this.firebaseService.obtenerUsuarioAutenticado();
       if (!usuario) {
         console.error('No se encontró un usuario autenticado.');
         return;
       }
-
-      asistencia.userId = usuario['id'];
-
+  
+      asistencia.userId = usuario['id']; // Agregar userId antes de guardar
+  
       await this.firebaseService.guardarAsistencia(asistencia);
-
       this.msgToast('Asistencia guardada exitosamente', 'success');
       console.log('Asistencia guardada en Firebase:', asistencia);
     } catch (error) {
@@ -258,4 +276,5 @@ export class EscaneoQrPage implements OnDestroy, AfterViewInit {
       this.showAlert('Error', 'Hubo un problema al guardar la asistencia.');
     }
   }
+  
 }

@@ -101,6 +101,7 @@ export class HomePage implements OnInit {
         cel: user.cel
       };
       this.authService.setCurrentUser(this.currentUser)
+      localStorage.setItem('userId',user.id)
       console.log('Datos del usuario:', this.currentUser);
     }
   }
@@ -111,6 +112,8 @@ export class HomePage implements OnInit {
     console.log('user',localStorage.getItem('user'))
     localStorage.removeItem('token');
     console.log('toke',localStorage.getItem('token'))
+    localStorage.removeItem('userId');
+    console.log('id',localStorage.getItem('userId'))
     this.router.navigate(['/login']);
   }
 }
